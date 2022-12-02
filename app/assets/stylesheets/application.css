@@ -79,3 +79,44 @@ h1 {
 .search-icon {
     width: 1.5rem;
 }
+
+/* Book Page */
+
+.book-container .text-container {
+    display: flex;
+    justify-content: space-around;
+    height: 5rem;
+    background-color: black;
+}
+.book-container .title-container {
+    height: 100%;
+    margin: 0;
+}
+.book-container .search-form {
+    margin: 1rem 0 0 0;
+}
+.download {
+    margin: 0 auto;
+}
+.download-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    justify-content: center;
+}
+.download-container li {
+    padding: 3rem;
+    margin: 2rem;
+    background-color: rgb(244, 244, 246);;
+    border: 1px solid black;
+}
+.download-link {
+    width: 100%;
+}
+.download-icon {
+    width: 7rem;
+    transition: .5s ease;
+}
+.download-icon:hover {
+    scale: 1.2;
+}
