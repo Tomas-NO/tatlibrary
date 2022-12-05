@@ -4,17 +4,25 @@
             <%= image_tag("Tatl.png", :class => "title" ,:alt => "title") %>
         </a>
         <form class="search-form">
-            <input type="search" id="search" name="search">
-            <button type="submit" id="submit" formaction="/book">
-                <%= image_tag("search.png", :class => "search-icon" ,:alt => "search icon") %>
-            </button>
+            <div class="search-container">
+                <select id="type" name="type" required="required">
+                    <option value="" disabled selected>Seleccione</option>
+                    <option value="fiction">Fiction</option>
+                    <option value="nonfic">Non-Fiction</option>
+                    <option value="scimag">Scientific</option>
+                </select>
+                <input type="search" id="search" name="search"/>
+                <button type="submit" id="submit" formaction="/book">
+                    <%= image_tag("search.png", :class => "search-icon" ,:alt => "search icon") %>
+                </button>
+            </div>
         </form>
     </div>
 
     <div class="download">
         <ul class="download-container" type="none">
             <li> 
-                <a href="#" class="download-link"> 
+                <a target="_blank" href="<%= @link %>" class="download-link"> 
                     <%= image_tag("download.png", :class => "download-icon" ,:alt => "download icon") %> 
                 </a>
             </li>
