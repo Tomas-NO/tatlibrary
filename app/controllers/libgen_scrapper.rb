@@ -18,11 +18,40 @@ def book_getter(book_type, book_name)
 end
 
 
-def mirror_getter(book_link)
+def book_information_getter(book_link)
   agent = Mechanize.new
   page = agent.get(book_link)
 
-  mirror_link = page.at_xpath("//td[contains(text(),'Download')]/..//td//a/@href")
+  results = {}
+
+  title = page.at_xpath("//td[@class = 'record_title']").text()
+  author = page.at_xpath("//ul[@class = 'catalog_authors']/li | (//tr/td[contains(text(),'Authors')]/../td)[2]").text()
+  image_url = "https://libgen.is#{page.at_xpath("//img/@src")}"
+
+  results['Title'] = title
+  results['Author'] = author
+  if image_url != "https://libgen.is"
+    results['Image'] = image_url
+  else
+    results['Image'] = "NO COVER"
+  end
+
+  return results
+end
+
+
+def mirror_getter(book_link)
+  agent = Mechanize.new
+  page = agent.get(book_link)
+  mirror_link = []
+  i = 1
+  next_mirror = true
+
+  while next_mirror
+    mirror_link.append(page.at_xpath("(//td[contains(text(),'Download')]/..//td//a/@href)[#{i}]"))
+    next_mirror = page.at_xpath("(//td[contains(text(),'Download')]/..//td//a/@href)[#{i + 1}]")
+    i += 1
+  end
   
   return mirror_link
 end
@@ -43,5 +72,10 @@ puts(book_link)
 
 mirror_link = mirror_getter(book_link)
 
-puts('This is the link to download the book:')
+puts('This are the links to download the book:')
 puts(mirror_link)
+
+book_info = book_information_getter(book_link)
+
+puts('This is the information of the book:')
+puts(book_info)
