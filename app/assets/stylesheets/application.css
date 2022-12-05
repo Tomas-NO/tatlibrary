@@ -18,6 +18,7 @@ html,
 body {
     height: 100%;
     margin: 0;
+    font-family: Roboto, sans-serif;
 }
 
 h1 {
@@ -128,8 +129,29 @@ h1 {
     margin: 1rem 0 0 0;
 }
 
-.download {
-    margin: 0 auto;
+.book-container #type {
+    border-color: white;
+}
+
+.book-information {
+    margin-top: 3rem;
+}
+
+.information {
+    display: flex;
+    justify-content: space-around;
+}
+
+.book-image {
+    width: 30%;
+}
+
+.book-image img {
+    width: 100%;
+}
+
+.book-description {
+    width: 50%;
 }
 
 .download-container {
@@ -140,11 +162,11 @@ h1 {
 }
 
 .download-container li {
-    padding: 3rem;
-    margin: 2rem;
+    margin: 0 1rem;
+    padding: .2rem;
     background-color: rgb(244, 244, 246);
-    ;
     border: 1px solid black;
+    border-radius: 10px;
 }
 
 .download-link {
@@ -152,7 +174,7 @@ h1 {
 }
 
 .download-icon {
-    width: 7rem;
+    width: 3rem;
     transition: .5s ease;
 }
 
