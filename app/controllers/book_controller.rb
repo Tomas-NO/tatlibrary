@@ -6,7 +6,7 @@ require "csv"
 class BookController < ApplicationController
   def index
     agent = Mechanize.new
-    page = agent.get(book_link)
+    page = agent.get(params[:link])
     results = {}
   
     title = page.at_xpath("//td[@class = 'record_title']").text()
@@ -21,7 +21,7 @@ class BookController < ApplicationController
     else
       results['Image'] = "NO COVER"
     end
-    results['Synopsis'] = description
+    results['Synopsis'] = synopsis
     results['Mirrors'] = mirror_getter(params[:link])
 
     @book_info = results    

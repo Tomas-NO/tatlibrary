@@ -1,3 +1,8 @@
+require 'rubygems'
+require 'mechanize'
+require 'json'
+require "csv"
+
 class BooksController < ApplicationController
   def index
     books_links = books_getter(params[:type], params[:search])
