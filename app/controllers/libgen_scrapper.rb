@@ -2,7 +2,7 @@ require 'mechanize'
 require 'json'
 require "csv"
 
-def book_getter(book_type, book_name)
+def books_getter(book_type, book_name)
   agent = Mechanize.new
   i = 1
   books_links = []
@@ -32,25 +32,31 @@ def book_getter(book_type, book_name)
 end
 
 
-def book_information_getter(book_link)
-  agent = Mechanize.new
-  page = agent.get(book_link)
+def books_information_getter(book_links)
+  result_info = []
 
-  results = {}
+  for book_link in book_links
+    agent = Mechanize.new
+    page = agent.get(book_link)
+    results = {}
 
-  title = page.at_xpath("//td[@class = 'record_title']").text()
-  author = page.at_xpath("//ul[@class = 'catalog_authors']/li | (//tr/td[contains(text(),'Authors')]/../td)[2]").text()
-  image_url = "https://libgen.is#{page.at_xpath("//img/@src")}"
+    title = page.at_xpath("//td[@class = 'record_title']").text()
+    author = page.at_xpath("//ul[@class = 'catalog_authors']/li | (//tr/td[contains(text(),'Authors')]/../td)[2]").text()
+    image_url = "https://libgen.is#{page.at_xpath("//img/@src")}"
 
-  results['Title'] = title
-  results['Author'] = author
-  if image_url != "https://libgen.is"
-    results['Image'] = image_url
-  else
-    results['Image'] = "NO COVER"
+    results['Title'] = title
+    results['Author'] = author
+    if image_url != "https://libgen.is"
+      results['Image'] = image_url
+    else
+      results['Image'] = "NO COVER"
+    end
+    results['Link'] = book_link
+
+    result_info.append(results)
   end
 
-  return results
+  return result_info
 end
 
 
@@ -69,7 +75,7 @@ def mirror_getter(book_link)
   
   return mirror_link
 end
-      
+
 
 puts('Introduce one of the followings categories:')
 puts('For Non-fiction / Sci-tech: nonfic')
@@ -79,17 +85,20 @@ book_type = gets.chomp
 puts('Introduce name of the book:')
 book_name = gets.chomp.split().join('+')
 
-books_links = book_getter(book_type, book_name)
+books_links = books_getter(book_type, book_name)
 
-books_links.each do |book_link|
-    puts('This is the link of the book:')
-    puts book_link
+# books_links.each do |book_link|
+#     puts('This is the link of the book:')
+#     puts book_link
 
-    book_info = book_information_getter(book_link)
-    puts('This is the information of the book:')
-    puts(book_info)
+#     book_info = books_information_getter(book_link)
+#     puts('This is the information of the book:')
+#     puts(book_info)
 
-    mirror_link = mirror_getter(book_link)
-    puts('This are the links to download the book:')
-    puts(mirror_link)
-end
+#     mirror_link = mirror_getter(book_link)
+#     puts('This are the links to download the book:')
+#     puts(mirror_link)
+# end
+
+list_info = books_information_getter(books_links)
+puts(list_info)
