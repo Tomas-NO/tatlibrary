@@ -1,22 +1,3 @@
 <div class="home-container">
-    <div class="text-container">
-        <a href="#" class="title-container"> 
-            <%= image_tag("Tatl.png", :class => "title" ,:alt => "title") %>
-        </a>
-        <form class="search-form" action="/book" method="get">
-            <div class="search-container">
-                <select id="type" name="type" required="required">
-                    <option value="" disabled selected>Seleccione</option>
-                    <option value="fiction">Fiction</option>
-                    <option value="nonfic">Non-Fiction</option>
-                    <option value="scimag">Scientific</option>
-                </select>
-                <input type="search" id="search" name="search" required="required"/>
-                <button type="submit" id="submit" >
-                    <%= image_tag("search.png", :class => "search-icon" ,:alt => "search icon") %>
-                </button>
-            </div>
-        </form>
-    </div>
+    <%= render template: "layouts/header" %>
 </div>
-
