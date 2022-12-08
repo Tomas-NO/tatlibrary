@@ -4,17 +4,31 @@ require "csv"
 
 def book_getter(book_type, book_name)
   agent = Mechanize.new
+  i = 1
+  books_links = []
+  
   if book_type != 'nonfic'
     page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}")
 
-    book_link = page.at_xpath("//table[@class='catalog']//tbody//td/p/a/@href")
+    6.times {
+            book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+            book_link = "https://libgen.is#{book_link}"
+            books_links.push book_link
+            i += 1
+        }
+    #book_link = page.at_xpath("//table[@class='catalog']//tbody//td/p/a/@href")
   else
     page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=def")
-
-    book_link = page.at_xpath("//table[@class='c']//tbody//td/a[@id]/@href")
+    6.times {
+            book_link = page.at_xpath("(//table[@class='c']//tbody//td/a[@id]/@href)[#{i}]")
+            book_link = "https://libgen.is#{book_link}"
+            books_links.push book_link
+            i += 1
+        }
+    #book_link = page.at_xpath("//table[@class='c']//tbody//td/a[@id]/@href")
   end
-
-  return "https://libgen.is#{book_link}"
+  return books_links
+  #return "https://libgen.is#{book_link}"
 end
 
 
@@ -65,17 +79,17 @@ book_type = gets.chomp
 puts('Introduce name of the book:')
 book_name = gets.chomp.split().join('+')
 
-book_link = book_getter(book_type, book_name)
+books_links = book_getter(book_type, book_name)
 
-puts('This is the link of the book:')
-puts(book_link)
+books_links.each do |book_link|
+    puts('This is the link of the book:')
+    puts book_link
 
-mirror_link = mirror_getter(book_link)
+    book_info = book_information_getter(book_link)
+    puts('This is the information of the book:')
+    puts(book_info)
 
-puts('This are the links to download the book:')
-puts(mirror_link)
-
-book_info = book_information_getter(book_link)
-
-puts('This is the information of the book:')
-puts(book_info)
+    mirror_link = mirror_getter(book_link)
+    puts('This are the links to download the book:')
+    puts(mirror_link)
+end
