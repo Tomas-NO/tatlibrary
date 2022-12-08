@@ -68,7 +68,11 @@ def mirror_getter(book_link)
   next_mirror = true
 
   while next_mirror
-    mirror_link.append(page.at_xpath("(//td[contains(text(),'Download')]/..//td//a/@href)[#{i}]").value())
+    link = page.at_xpath("(//td[contains(text(),'Download')]/..//td//a/@href)[#{i}]").value()
+    if link.include?('torrent')
+      link = "https://libgen.is#{link}"
+    end
+    mirror_link.append(link)
     next_mirror = page.at_xpath("(//td[contains(text(),'Download')]/..//td//a/@href)[#{i + 1}]")
     i += 1
   end
