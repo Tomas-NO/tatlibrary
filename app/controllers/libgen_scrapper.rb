@@ -7,7 +7,7 @@ def books_getter(book_type, book_name)
   i = 1
   books_links = []
   
-  if book_type != 'nonfic'
+  if book_type == 'fiction'
     page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}")
 
     6.times {
@@ -17,13 +17,22 @@ def books_getter(book_type, book_name)
             i += 1
         }
     #book_link = page.at_xpath("//table[@class='catalog']//tbody//td/p/a/@href")
-  else
+  elsif book_type == 'nonfic'
     page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=def")
     6.times {
             book_link = page.at_xpath("(//table[@class='c']//tbody//td/a[@id]/@href)[#{i}]")
             book_link = "https://libgen.is#{book_link}"
             books_links.push book_link
             i += 1
+        }
+  else
+    page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}")
+
+    6.times {
+            book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+            book_link = "https://libgen.is#{book_link}"
+            books_links.push book_link
+            i += 2
         }
     #book_link = page.at_xpath("//table[@class='c']//tbody//td/a[@id]/@href")
   end
@@ -39,7 +48,7 @@ def books_information_getter(book_links)
     agent = Mechanize.new
     page = agent.get(book_link)
     results = {}
-
+    puts book_link
     title = page.at_xpath("//td[@class = 'record_title']").text()
     author = page.at_xpath("//ul[@class = 'catalog_authors']/li | (//tr/td[contains(text(),'Authors')]/../td)[2]").text()
     image_url = "https://libgen.is#{page.at_xpath("//img/@src")}"
@@ -89,7 +98,7 @@ def books_information_detail_getter(book_link)
   title = page.at_xpath("//td[@class = 'record_title']").text()
   author = page.at_xpath("//ul[@class = 'catalog_authors']/li | (//tr/td[contains(text(),'Authors')]/../td)[2]").text()
   image_url = "https://libgen.is#{page.at_xpath("//img/@src")}"
-  description = page.at_xpath("(//td[@colspan = 4])[1] | (//td[@colspan = 2])[2]").text() rescue ''
+  synopsis = page.at_xpath("(//td[@colspan = 4])[1] | (//td[@colspan = 2])[2]").text() rescue ''
 
   results['Title'] = title
   results['Author'] = author
@@ -98,7 +107,7 @@ def books_information_detail_getter(book_link)
   else
     results['Image'] = "NO COVER"
   end
-  results['Descripcion'] = description
+  results['Synopsis'] = synopsis
   results['Mirrors'] = mirror_getter(book_link)
 
   return results
