@@ -68,12 +68,36 @@ def mirror_getter(book_link)
   next_mirror = true
 
   while next_mirror
-    mirror_link.append(page.at_xpath("(//td[contains(text(),'Download')]/..//td//a/@href)[#{i}]"))
+    mirror_link.append(page.at_xpath("(//td[contains(text(),'Download')]/..//td//a/@href)[#{i}]").value())
     next_mirror = page.at_xpath("(//td[contains(text(),'Download')]/..//td//a/@href)[#{i + 1}]")
     i += 1
   end
   
   return mirror_link
+end
+
+
+def books_information_detail_getter(book_link)
+  agent = Mechanize.new
+  page = agent.get(book_link)
+  results = {}
+
+  title = page.at_xpath("//td[@class = 'record_title']").text()
+  author = page.at_xpath("//ul[@class = 'catalog_authors']/li | (//tr/td[contains(text(),'Authors')]/../td)[2]").text()
+  image_url = "https://libgen.is#{page.at_xpath("//img/@src")}"
+  description = page.at_xpath("(//td[@colspan = 4])[1] | (//td[@colspan = 2])[2]").text() rescue ''
+
+  results['Title'] = title
+  results['Author'] = author
+  if image_url != "https://libgen.is"
+    results['Image'] = image_url
+  else
+    results['Image'] = "NO COVER"
+  end
+  results['Descripcion'] = description
+  results['Mirrors'] = mirror_getter(book_link)
+
+  return results
 end
 
 
@@ -87,18 +111,15 @@ book_name = gets.chomp.split().join('+')
 
 books_links = books_getter(book_type, book_name)
 
-# books_links.each do |book_link|
-#     puts('This is the link of the book:')
-#     puts book_link
-
-#     book_info = books_information_getter(book_link)
-#     puts('This is the information of the book:')
-#     puts(book_info)
-
-#     mirror_link = mirror_getter(book_link)
-#     puts('This are the links to download the book:')
-#     puts(mirror_link)
-# end
-
 list_info = books_information_getter(books_links)
-puts(list_info)
+    puts('This is the information of the book')
+    puts(list_info)
+
+books_links.each do |book_link|
+    puts('This is the link of the book:')
+    puts book_link
+
+    book_details = books_information_detail_getter(book_link)
+    puts('This are the details to download the book:')
+    puts(book_details)
+end
