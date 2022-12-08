@@ -4,11 +4,12 @@
     <ul class="books-container" type="none">
         <% @books_info.each do |book|%>
             <li class="book-item"> 
-                <a href="/book">  
+                <a href="/book?link=<%= book['Link'] %>">  
                     <div class="book-item-info">
-                        <%= image_tag("book-example.jpg", :alt => "book image") %>  
-                        <h3>Pórtico (La Saga de los Heechee 1)</h1>
-                        <p><b>Author:</b> Frederik Pohl</p>
+                        <%= image_tag("#{book['Image']}", :alt => "book image") %>  
+                        <h3><%= book['Title'] %></h3>
+                        <p><b>Author:</b> <%= book['Author'] %></p>
+                        <input id="bookLink" name="bookLink" type="hidden" value='<%= book['Link'] %>'>                        
                     </div>
                 </a>
             </li>

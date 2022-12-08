@@ -13,24 +13,21 @@ class BooksController < ApplicationController
       page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}")
   
       6.times {
-              book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
-              book_link = "https://libgen.is#{book_link}"
-              books_links.push book_link
-              i += 1
-          }
-      #book_link = page.at_xpath("//table[@class='catalog']//tbody//td/p/a/@href")
+        book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+        book_link = "https://libgen.is#{book_link}"
+        books_links.push book_link
+        i += 1
+      }
     else
       page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=def")
       6.times {
-              book_link = page.at_xpath("(//table[@class='c']//tbody//td/a[@id]/@href)[#{i}]")
-              book_link = "https://libgen.is#{book_link}"
-              books_links.push book_link
-              i += 1
-          }
-      #book_link = page.at_xpath("//table[@class='c']//tbody//td/a[@id]/@href")
+        book_link = page.at_xpath("(//table[@class='c']//tbody//td/a[@id]/@href)[#{i}]")
+        book_link = "https://libgen.is#{book_link}"
+        books_links.push book_link
+        i += 1
+      }
     end
     return books_links
-    #return "https://libgen.is#{book_link}"
   end
   
   
