@@ -14,23 +14,34 @@ class BooksController < ApplicationController
     i = 1
     books_links = []
     
-    if book_type != 'nonfic'
+    if book_type == 'fiction'
       page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}")
   
       6.times {
-        book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
-        book_link = "https://libgen.is#{book_link}"
-        books_links.push book_link
-        i += 1
-      }
-    else
+              book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+              book_link = "https://libgen.is#{book_link}"
+              books_links.push book_link
+              i += 1
+          }
+      #book_link = page.at_xpath("//table[@class='catalog']//tbody//td/p/a/@href")
+    elsif book_type == 'nonfic'
       page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=def")
       6.times {
-        book_link = page.at_xpath("(//table[@class='c']//tbody//td/a[@id]/@href)[#{i}]")
-        book_link = "https://libgen.is#{book_link}"
-        books_links.push book_link
-        i += 1
-      }
+              book_link = page.at_xpath("(//table[@class='c']//tbody//td/a[@id]/@href)[#{i}]")
+              book_link = "https://libgen.is#{book_link}"
+              books_links.push book_link
+              i += 1
+          }
+    else
+      page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}")
+  
+      6.times {
+              book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+              book_link = "https://libgen.is#{book_link}"
+              books_links.push book_link
+              i += 2
+          }
+      #book_link = page.at_xpath("//table[@class='c']//tbody//td/a[@id]/@href")
     end
     return books_links
   end
@@ -53,7 +64,7 @@ class BooksController < ApplicationController
       if image_url != "https://libgen.is"
         results['Image'] = image_url
       else
-        results['Image'] = "NO COVER"
+        results['Image'] = "https://libgen.is/static/no_cover.png"
       end
       results['Link'] = book_link
   

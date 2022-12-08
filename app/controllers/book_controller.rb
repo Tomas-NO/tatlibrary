@@ -19,7 +19,7 @@ class BookController < ApplicationController
     if image_url != "https://libgen.is"
       results['Image'] = image_url
     else
-      results['Image'] = "NO COVER"
+      results['Image'] = "https://libgen.is/static/no_cover.png"
     end
     results['Synopsis'] = synopsis
     results['Mirrors'] = mirror_getter(params[:link])
