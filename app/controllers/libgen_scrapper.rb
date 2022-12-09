@@ -8,7 +8,7 @@ def books_getter(book_type, book_name)
   books_links = []
   
   if book_type == 'fiction'
-    page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}")
+    page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}&criteria=title")
 
     6.times {
             book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
