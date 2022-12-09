@@ -18,7 +18,7 @@ def books_getter(book_type, book_name)
             i += 1
         }
   elsif book_type == 'nonfic'
-    page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=def")
+    page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=title")
     6.times {
             book_link = page.at_xpath("(//tr/td//a[@id]/@href)[#{i}]")
             break if !book_link
