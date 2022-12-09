@@ -12,16 +12,17 @@ def books_getter(book_type, book_name)
 
     6.times {
             book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+            break if !book_link
             book_link = "https://libgen.is#{book_link}"
             books_links.push book_link
             i += 1
         }
-    #book_link = page.at_xpath("//table[@class='catalog']//tbody//td/p/a/@href")
   elsif book_type == 'nonfic'
     page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=def")
     6.times {
-            book_link = page.at_xpath("(//table[@class='c']//tbody//td/a[@id]/@href)[#{i}]")
-            book_link = "https://libgen.is#{book_link}"
+            book_link = page.at_xpath("(//tr/td//a[@id]/@href)[#{i}]")
+            break if !book_link
+            book_link = "https://libgen.is/#{book_link}"
             books_links.push book_link
             i += 1
         }
@@ -30,14 +31,13 @@ def books_getter(book_type, book_name)
 
     6.times {
             book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+            break if !book_link
             book_link = "https://libgen.is#{book_link}"
             books_links.push book_link
             i += 2
         }
-    #book_link = page.at_xpath("//table[@class='c']//tbody//td/a[@id]/@href")
   end
   return books_links
-  #return "https://libgen.is#{book_link}"
 end
 
 
@@ -48,9 +48,8 @@ def books_information_getter(book_links)
     agent = Mechanize.new
     page = agent.get(book_link)
     results = {}
-    puts book_link
-    title = page.at_xpath("//td[@class = 'record_title']").text()
-    author = page.at_xpath("//ul[@class = 'catalog_authors']/li | (//tr/td[contains(text(),'Authors')]/../td)[2]").text()
+    title = page.at_xpath("//td[@class = 'record_title'] | (//tr[@valign]//a)[2]").text()
+    author = page.at_xpath("//ul[@class = 'catalog_authors']/li | (//tr/td[contains(text(),'Authors')]/../td)[2] | //font[contains(text(), 'Author')]/../../../td[2]").text()
     image_url = "https://libgen.is#{page.at_xpath("//img/@src")}"
 
     results['Title'] = title
@@ -58,7 +57,7 @@ def books_information_getter(book_links)
     if image_url != "https://libgen.is"
       results['Image'] = image_url
     else
-      results['Image'] = "NO COVER"
+      results['Image'] = "https://libgen.is/static/no_cover.png"
     end
     results['Link'] = book_link
 
@@ -77,12 +76,15 @@ def mirror_getter(book_link)
   next_mirror = true
 
   while next_mirror
-    link = page.at_xpath("(//td[contains(text(),'Download')]/..//td//a/@href)[#{i}]").value()
+    link = page.at_xpath("(//td[contains(text(),'Download')]/..//td//a/@href)[#{i}] | (//font[contains(text(),'Mirror')]/../..//a/@href)[#{i}]").value()
     if link.include?('torrent')
       link = "https://libgen.is#{link}"
     end
+    if link.include?('magnet')
+      link = "https://libgen.is/book/#{link}"
+    end
     mirror_link.append(link)
-    next_mirror = page.at_xpath("(//td[contains(text(),'Download')]/..//td//a/@href)[#{i + 1}]")
+    next_mirror = page.at_xpath("(//td[contains(text(),'Download')]/..//td//a/@href)[#{i + 1}] | (//font[contains(text(),'Mirror')]/../..//a/@href)[#{i + 1}]")
     i += 1
   end
   
@@ -95,8 +97,8 @@ def books_information_detail_getter(book_link)
   page = agent.get(book_link)
   results = {}
 
-  title = page.at_xpath("//td[@class = 'record_title']").text()
-  author = page.at_xpath("//ul[@class = 'catalog_authors']/li | (//tr/td[contains(text(),'Authors')]/../td)[2]").text()
+  title = page.at_xpath("//td[@class = 'record_title'] | (//tr[@valign]//a)[2]").text()
+  author = page.at_xpath("//ul[@class = 'catalog_authors']/li | (//tr/td[contains(text(),'Authors')]/../td)[2] | //font[contains(text(), 'Author')]/../../../td[2]").text()
   image_url = "https://libgen.is#{page.at_xpath("//img/@src")}"
   synopsis = page.at_xpath("(//td[@colspan = 4])[1] | (//td[@colspan = 2])[2]").text() rescue ''
 
@@ -105,7 +107,7 @@ def books_information_detail_getter(book_link)
   if image_url != "https://libgen.is"
     results['Image'] = image_url
   else
-    results['Image'] = "NO COVER"
+    results['Image'] = "https://libgen.is/static/no_cover.png"
   end
   results['Synopsis'] = synopsis
   results['Mirrors'] = mirror_getter(book_link)
