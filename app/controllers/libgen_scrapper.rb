@@ -6,38 +6,51 @@ def books_getter(book_type, book_name)
   agent = Mechanize.new
   i = 1
   books_links = []
+  attempts = 1
   
-  if book_type == 'fiction'
-    page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}&criteria=title")
+  begin
+    if book_type == 'fiction'
+      page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}&criteria=title")
 
-    6.times {
-            book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
-            break if !book_link
-            book_link = "https://libgen.is#{book_link}"
-            books_links.push book_link
-            i += 1
-        }
-  elsif book_type == 'nonfic'
-    page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=title")
-    6.times {
-            book_link = page.at_xpath("(//tr/td//a[@id]/@href)[#{i}]")
-            break if !book_link
-            book_link = "https://libgen.is/#{book_link}"
-            books_links.push book_link
-            i += 1
-        }
-  else
-    page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}")
+      6.times {
+              book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+              break if !book_link
+              book_link = "https://libgen.is#{book_link}"
+              books_links.push book_link
+              i += 1
+          }
+    elsif book_type == 'nonfic'
+      page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=title")
+      6.times {
+              book_link = page.at_xpath("(//tr/td//a[@id]/@href)[#{i}]")
+              break if !book_link
+              book_link = "https://libgen.is/#{book_link}"
+              books_links.push book_link
+              i += 1
+          }
+    else
+      page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}")
 
-    6.times {
-            book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
-            break if !book_link
-            book_link = "https://libgen.is#{book_link}"
-            books_links.push book_link
-            i += 2
-        }
+      6.times {
+              book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+              break if !book_link
+              book_link = "https://libgen.is#{book_link}"
+              books_links.push book_link
+              i += 2
+          }
+    end
+    return books_links
+
+  rescue Mechanize::ResponseCodeError
+
+    if attempts <= 3
+      attempts +=1
+      retry
+    else
+      raise "An Mechanize exception occurred"
+    end
+
   end
-  return books_links
 end
 
 
@@ -126,15 +139,17 @@ book_name = gets.chomp.split().join('+')
 
 books_links = books_getter(book_type, book_name)
 
-list_info = books_information_getter(books_links)
-    puts('This is the information of the book')
-    puts(list_info)
+puts books_links
 
-books_links.each do |book_link|
-    puts('This is the link of the book:')
-    puts book_link
+# list_info = books_information_getter(books_links)
+#     puts('This is the information of the book')
+#     puts(list_info)
 
-    book_details = books_information_detail_getter(book_link)
-    puts('This are the details to download the book:')
-    puts(book_details)
-end
+# books_links.each do |book_link|
+#     puts('This is the link of the book:')
+#     puts book_link
+
+#     book_details = books_information_detail_getter(book_link)
+#     puts('This are the details to download the book:')
+#     puts(book_details)
+# end
