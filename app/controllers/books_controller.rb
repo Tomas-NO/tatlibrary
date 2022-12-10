@@ -13,38 +13,51 @@ class BooksController < ApplicationController
     agent = Mechanize.new
     i = 1
     books_links = []
+    attempts = 1
     
-    if book_type == 'fiction'
-      page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}&criteria=title")
+    begin
+      if book_type == 'fiction'
+        page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}&criteria=title")
   
-      6.times {
-              book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
-              break if !book_link
-              book_link = "https://libgen.is#{book_link}"
-              books_links.push book_link
-              i += 1
-          }
-    elsif book_type == 'nonfic'
-      page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=title")
-      6.times {
-              book_link = page.at_xpath("(//tr/td//a[@id]/@href)[#{i}]")
-              break if !book_link
-              book_link = "https://libgen.is/#{book_link}"
-              books_links.push book_link
-              i += 1
-          }
-    else
-      page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}")
+        6.times {
+                book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+                break if !book_link
+                book_link = "https://libgen.is#{book_link}"
+                books_links.push book_link
+                i += 1
+            }
+      elsif book_type == 'nonfic'
+        page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=title")
+        6.times {
+                book_link = page.at_xpath("(//tr/td//a[@id]/@href)[#{i}]")
+                break if !book_link
+                book_link = "https://libgen.is/#{book_link}"
+                books_links.push book_link
+                i += 1
+            }
+      else
+        page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}")
   
-      6.times {
-              book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
-              break if !book_link
-              book_link = "https://libgen.is#{book_link}"
-              books_links.push book_link
-              i += 2
-          }
+        6.times {
+                book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+                break if !book_link
+                book_link = "https://libgen.is#{book_link}"
+                books_links.push book_link
+                i += 2
+            }
+      end
+      return books_links
+  
+    rescue Mechanize::ResponseCodeError
+  
+      if attempts <= 3
+        attempts +=1
+        retry
+      else
+        raise "An Mechanize exception occurred"
+      end
+  
     end
-    return books_links
   end
   
   
