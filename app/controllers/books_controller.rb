@@ -15,20 +15,21 @@ class BooksController < ApplicationController
     books_links = []
     
     if book_type == 'fiction'
-      page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}")
+      page = agent.get("https://libgen.is/#{book_type}/?q=#{book_name}&criteria=title")
   
       6.times {
               book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+              break if !book_link
               book_link = "https://libgen.is#{book_link}"
               books_links.push book_link
               i += 1
           }
-      #book_link = page.at_xpath("//table[@class='catalog']//tbody//td/p/a/@href")
     elsif book_type == 'nonfic'
-      page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=def")
+      page = agent.get("https://libgen.is/search.php?req=#{book_name}&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=title")
       6.times {
-              book_link = page.at_xpath("(//table[@class='c']//tbody//td/a[@id]/@href)[#{i}]")
-              book_link = "https://libgen.is#{book_link}"
+              book_link = page.at_xpath("(//tr/td//a[@id]/@href)[#{i}]")
+              break if !book_link
+              book_link = "https://libgen.is/#{book_link}"
               books_links.push book_link
               i += 1
           }
@@ -37,11 +38,11 @@ class BooksController < ApplicationController
   
       6.times {
               book_link = page.at_xpath("(//table[@class='catalog']//tbody//td/p/a/@href)[#{i}]")
+              break if !book_link
               book_link = "https://libgen.is#{book_link}"
               books_links.push book_link
               i += 2
           }
-      #book_link = page.at_xpath("//table[@class='c']//tbody//td/a[@id]/@href")
     end
     return books_links
   end
@@ -49,14 +50,13 @@ class BooksController < ApplicationController
   
   def books_information_getter(book_links)
     result_info = []
-  
+
     for book_link in book_links
       agent = Mechanize.new
       page = agent.get(book_link)
       results = {}
-  
-      title = page.at_xpath("//td[@class = 'record_title']").text()
-      author = page.at_xpath("//ul[@class = 'catalog_authors']/li | (//tr/td[contains(text(),'Authors')]/../td)[2]").text()
+      title = page.at_xpath("//td[@class = 'record_title'] | (//tr[@valign]//a)[2]").text()
+      author = page.at_xpath("//ul[@class = 'catalog_authors']/li | (//tr/td[contains(text(),'Authors')]/../td)[2] | //font[contains(text(), 'Author')]/../../../td[2]").text()
       image_url = "https://libgen.is#{page.at_xpath("//img/@src")}"
   
       results['Title'] = title
