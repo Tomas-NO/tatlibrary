@@ -64,7 +64,7 @@ class BooksController < ApplicationController
   def books_information_getter(book_links)
     result_info = []
 
-    for book_link in book_links
+    book_links.each do |book_link|
       agent = Mechanize.new
       page = agent.get(book_link)
       results = {}
